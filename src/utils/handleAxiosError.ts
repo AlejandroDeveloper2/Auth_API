@@ -1,28 +1,21 @@
-import { Response } from "express";
 import { AxiosError } from "axios";
 
 import { ErrorResponse } from "@interfaces/.";
-import { handleHttp } from ".";
+import { AppError } from ".";
 
-const handleAxiosError = (e: unknown, res: Response): void => {
+const handleAxiosError = (e: unknown) => {
   const error: AxiosError<ErrorResponse> = e as AxiosError<ErrorResponse>;
+
   if (error.response) {
-    handleHttp(
-      res,
-      { data: null, message: error.response.data.message },
-      error.response.status
-    );
-    return;
+    const message = error.response
+      ? error.response.data.message
+      : "No hubo respuesta de la API de usuarios";
+
+    throw new AppError(error.status ?? 500, message);
   }
 
-  handleHttp(
-    res,
-    {
-      data: null,
-      message: "¡No se obtuvo respuesta del microservicio de autentificación!",
-    },
-    500
-  );
+  if (error instanceof AppError) throw new AppError(error.code, error.message);
+  throw new AppError(500, "Hubo un error al realizar la petición");
 };
 
 export { handleAxiosError };
