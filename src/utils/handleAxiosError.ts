@@ -14,7 +14,7 @@ const handleAxiosError = (e: unknown) => {
     throw new AppError(error.status ?? 500, message);
   }
 
-  if (error instanceof AppError) throw new AppError(error.code, error.message);
+  if (e instanceof AppError) throw new AppError(e.code, e.message);
   throw new AppError(500, "Hubo un error al realizar la petición");
 };
 
